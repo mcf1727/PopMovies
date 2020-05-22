@@ -3,6 +3,7 @@
 
 ## Set api_key
 This app use the API from themoviedb.org to fetch popular movies.
+
 To launch the app, you need to follow the follow steps:
 - Go to the website [https://www.themoviedb.org/account/signup](https://www.themoviedb.org/account/signup) to create an account
 - Then request an API Key

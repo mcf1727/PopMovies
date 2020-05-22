@@ -15,7 +15,6 @@ public class Movie implements Parcelable {
     private String releaseDate;
     private int id;
 
-    //TODO constructor of movie
     public Movie() {}
 
     public String getOriginalTitle() { return originalTitle; }

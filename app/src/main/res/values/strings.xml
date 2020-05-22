@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Pop Movies</string>
+    <string name="sort_by_most_popular_button">Sort by most popular</string>
+    <string name="sort_by_top_rated_button">Sort by top rated</string>
+    <string name="share_button">Share</string>
+    <string name="filled_move_image">filled move image</string>
+    <string name="detail_filled_image">detail filled image</string>
+</resources>

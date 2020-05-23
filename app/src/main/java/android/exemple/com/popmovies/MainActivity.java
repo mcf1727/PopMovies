@@ -33,9 +33,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
     private static final String POPULAR = "popular";
     /* The choice of sort order by the top rated */
     private static final String TOP_RATED = "top_rated";
-    /* The critical for the sort order */
+    /* The criteria for the sort order */
     private String criteria;
-    private MovieAdapter mMovieAdapter;
+    private static MovieAdapter mMovieAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,15 +59,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
     }
 
     /**
-     * This method will get the the criteria of sort, and then tell some background method to get
-     * the movie data in the background.
-     */
-    private void loadMovieDate() {
-        criteria = POPULAR;
-        new FetchMovieTask().execute(criteria);
-    }
-
-    /**
      * This method is overridden by our MainActivity class in order to handle RecyclerView item
      * clicks.
      * @param clickedMovieData The Movie for the movie that was clicked
@@ -75,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
     @Override
     public void onListItemClick(Movie clickedMovieData) {
         Intent intentToStartDetailActivity = new Intent(this, DetailActivity.class);
-        intentToStartDetailActivity.putExtra("movie", clickedMovieData);
+        intentToStartDetailActivity.putExtra(String.valueOf(R.string.EXTRA_MOVIE), clickedMovieData);
         startActivity(intentToStartDetailActivity);
     }
 
@@ -94,12 +85,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
 
         switch (item.getItemId()) {
             case R.id.sort_by_most_popular:
-                criteria = POPULAR;
-                new FetchMovieTask().execute(criteria);
+                fetchMovieListOnCriteria(POPULAR);
                 return true;
             case R.id.sort_by_top_rated:
-                criteria = TOP_RATED;
-                new FetchMovieTask().execute(criteria);
+                fetchMovieListOnCriteria(TOP_RATED);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -108,16 +97,27 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
     }
 
     /**
-     * Check if the internet connection is available.
-     * @return Boolean (true when there is internet connection, others return false)
+     * This method will the movie data.
      */
-    private boolean isOnline() {
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = Objects.requireNonNull(cm).getActiveNetworkInfo();
-        return netInfo != null && netInfo.isConnectedOrConnecting();
+    private void loadMovieDate() {
+        fetchMovieListOnCriteria(POPULAR);
     }
 
-    public class FetchMovieTask extends AsyncTask<String, Void, Movie[]> {
+    /**
+     * This method will get the the criteria of sort, and then tell some background method to get
+     * the movie data in the background.
+     *
+     * @param criteria The criteria for the sort order
+     */
+    private void fetchMovieListOnCriteria(String criteria) {
+
+        if (this.criteria == null || !this.criteria.equals(criteria)) {
+            new FetchMovieTask().execute(criteria);
+            this.criteria = criteria;
+        }
+    }
+
+    public static class FetchMovieTask extends AsyncTask<String, Void, Movie[]> {
         @Override
         protected Movie[] doInBackground(String... params) {
             if (params.length == 0) {
@@ -145,5 +145,16 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
                 mMovieAdapter.setMovieData(movies);
             }
         }
+    }
+
+
+    /**
+     * Check if the internet connection is available.
+     * @return Boolean (true when there is internet connection, others return false)
+     */
+    private boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = Objects.requireNonNull(cm).getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }

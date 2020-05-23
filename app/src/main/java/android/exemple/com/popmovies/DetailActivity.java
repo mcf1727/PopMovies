@@ -23,6 +23,7 @@ import java.util.Objects;
 public class DetailActivity extends AppCompatActivity {
 
     private static final String MOVIE_SHARE_HASHTAG = " #The Movie Database";
+    private static final String FULL_VOTE_CORE = "/10";
     private static String originalTitle;
     private static String releaseDate;
     private static String voteAverage;
@@ -43,25 +44,36 @@ public class DetailActivity extends AppCompatActivity {
 
         Intent intentThatStartedThisActivity = getIntent();
         if (intentThatStartedThisActivity != null) {
-            if (intentThatStartedThisActivity.hasExtra("movie")) {
-                Movie mMovie = intentThatStartedThisActivity.getParcelableExtra("movie");
+            if (intentThatStartedThisActivity.hasExtra(String.valueOf((R.string.EXTRA_MOVIE)))) {
+                Movie mMovie = intentThatStartedThisActivity.getParcelableExtra(String.valueOf((R.string.EXTRA_MOVIE)));
 
-                originalTitle = mMovie.getOriginalTitle();
-                mOriginalTitle.setText(originalTitle);
+                if (mMovie != null) {
+                    originalTitle = mMovie.getOriginalTitle();
+                    if (originalTitle != null) {
+                        mOriginalTitle.setText(originalTitle);
+                    }
 
-                Picasso.get()
-                        .load(NetworkUtils.buildPosterUrlString(mMovie.getPosterPath()))
-                        .into(mPoster);
+                    String posterPath = mMovie.getPosterPath();
+                    if (posterPath != null) {
+                        Picasso.get()
+                                .load(NetworkUtils.buildPosterUrlString(mMovie.getPosterPath()))
+                                .into(mPoster);
+                    }
 
-                releaseDate = mMovie.getReleaseDate();
-                releaseDate = releaseDate.substring(0, releaseDate.indexOf("-"));
-                mReleaseDate.setText(releaseDate);
+                    releaseDate = mMovie.getReleaseDate();
+                    if (releaseDate != null) {
+                        releaseDate = releaseDate.substring(0, releaseDate.indexOf("-"));
+                        mReleaseDate.setText(releaseDate);
+                    }
 
-                voteAverage = mMovie.getVoteAverage() + "/10";
-                mVoteAverage.setText(voteAverage);
+                    voteAverage = mMovie.getVoteAverage() + FULL_VOTE_CORE;
+                    mVoteAverage.setText(voteAverage);
 
-                overview = mMovie.getOverview();
-                mOverview.setText(overview);
+                    overview = mMovie.getOverview();
+                    if (overview != null) {
+                        mOverview.setText(overview);
+                    }
+                }
             }
         }
     }
@@ -84,6 +96,7 @@ public class DetailActivity extends AppCompatActivity {
 
     /**
      * Function to share Movie information
+     *
      * @param movieToShare The information to share about the movie
      */
     private void shareText(String movieToShare) {

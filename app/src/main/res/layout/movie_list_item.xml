@@ -13,6 +13,6 @@
         android:layout_height="300dp"
         android:layout_gravity="center"
         android:scaleType="fitXY"
-        android:contentDescription="@string/filled_move_image" />
+        android:contentDescription="@string/filled_movie_image" />
 
 </LinearLayout>

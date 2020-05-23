@@ -12,6 +12,10 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // Please ensure you have a valid API KEY for themoviedb.org↵ to use this app
+        // A valid key will need to be entered
+        buildConfigField("String", "API_KEY", API_KEY)
     }
 
     buildTypes {
@@ -36,5 +40,4 @@ dependencies {
 
     // To handle image loading
     implementation 'com.squareup.picasso:picasso:2.71828'
-
 }

@@ -3,6 +3,7 @@
  */
 package android.exemple.com.popmovies.utilities;
 
+import android.exemple.com.popmovies.BuildConfig;
 import android.net.Uri;
 import android.util.Log;
 
@@ -18,8 +19,7 @@ public final class NetworkUtils {
     private static final String TAG = NetworkUtils.class.getSimpleName();
 
     private static final String WEATHER_BASE_URL = "https://api.themoviedb.org/3/movie/";
-    //TODO Replace the api_key that you applied from the website The Movie Db
-    private static final String API_KEY = "";
+    private static final String API_KEY = BuildConfig.API_KEY;
     private static final String POSTER_BASE_URL = "https://image.tmdb.org/t/p/";
     private static final String POSTER_SIZE = "w185";
 

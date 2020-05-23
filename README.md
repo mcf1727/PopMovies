@@ -8,5 +8,9 @@ To launch the app, you need to follow the follow steps:
 - Go to the website [https://www.themoviedb.org/account/signup](https://www.themoviedb.org/account/signup) to create an account
 - Then request an API Key
 < In your request for a key, state that your usage will be for educational/non-commercial use. You will also need to provide some personal information to complete the request. Once you submit your request, you should receive your key via email shortly after.
-- Go to the file **NetworkUtils.java**
-- Fill in your API key for the String API_KEY
+- Go to the project:gradle.properties file
+- Fill in your API key for the String API_KEY and add a new reference for API_KEY = “Your API KEY String”
+```
+# My Secret Key - this is an example, please enter your own key!
+API_KEY="Your API KEY String"
+```

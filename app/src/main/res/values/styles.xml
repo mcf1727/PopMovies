@@ -9,4 +9,12 @@
         <item name="android:navigationBarColor">@android:color/black</item>
     </style>
 
+    <!-- Style for the TextView. -->
+    <style name="TextViewStyle">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:paddingTop">10dp</item>
+    </style>
+
 </resources>

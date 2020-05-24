@@ -5,6 +5,7 @@ package android.exemple.com.popmovies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.exemple.com.popmovies.Adapter.MovieAdapter;
 import android.exemple.com.popmovies.model.Movie;
 import android.exemple.com.popmovies.utilities.NetworkUtils;
 import android.exemple.com.popmovies.utilities.TheMovieDbJsonUtils;

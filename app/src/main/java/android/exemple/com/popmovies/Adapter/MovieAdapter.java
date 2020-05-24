@@ -1,26 +1,25 @@
 /*
  * Copyright (C) 2020 The Android Open Source Project
  */
-package android.exemple.com.popmovies;
+package android.exemple.com.popmovies.Adapter;
 
 import android.content.Context;
+import android.exemple.com.popmovies.R;
 import android.exemple.com.popmovies.model.Movie;
 import android.exemple.com.popmovies.utilities.NetworkUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 
-public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapterViewHolder>{
+public class MovieAdapter extends RecyclerView.Adapter<MovieAdapterViewHolder>{
 
     private String[] mImageUris;
     private Movie[] mMovies;
-
 
     /**
      * An on-click listener that we've defined to make it easy for an Activity to interface with
@@ -61,7 +60,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
 
         View view = inflater.inflate(layoutIdForListItem, viewGroup, false);
 
-        return new MovieAdapterViewHolder(view);
+        return new MovieAdapterViewHolder(view, mMovies, mOnClickListener);
     }
 
     /**
@@ -113,29 +112,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
         mMovies = movies;
         notifyDataSetChanged();
     }
-
-    /**
-     * Cache of the children views for a movie list item.
-     */
-    class MovieAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-
-        public final ImageView mMovieImageView;
-
-        public MovieAdapterViewHolder(View itemView) {
-            super(itemView);
-            mMovieImageView = itemView.findViewById(R.id.iv_movie);
-            itemView.setOnClickListener(this);
-        }
-
-        /**
-         * This gets called by the child views during a click.
-         * @param view The View that was clicked
-         */
-        @Override
-        public void onClick(View view) {
-            int adapterPosition = getAdapterPosition();
-            Movie clickedMovieData = mMovies[adapterPosition];
-            mOnClickListener.onListItemClick(clickedMovieData);
-        }
-    }
 }
+
+
+

@@ -10,4 +10,9 @@
         android:id="@+id/sort_by_top_rated"
         android:title="@string/sort_by_top_rated_button"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/favorite_movie_list"
+        android:title="@string/favorite_movies_list_button"
+        app:showAsAction="never" />
 </menu>

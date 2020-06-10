@@ -1,22 +1,26 @@
 /*
  * Copyright (C) 2020 The Android Open Source Project
  */
-package android.exemple.com.popmovies.Adapter;
+package android.exemple.com.popmovies.movieItem;
 
 import android.content.Context;
 import android.exemple.com.popmovies.R;
 import android.exemple.com.popmovies.model.Movie;
 import android.exemple.com.popmovies.utilities.NetworkUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 
-public class MovieAdapter extends RecyclerView.Adapter<MovieAdapterViewHolder>{
+import java.util.List;
+
+public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapterViewHolder>{
 
     private String[] mImageUris;
     private Movie[] mMovies;
@@ -60,7 +64,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapterViewHolder>{
 
         View view = inflater.inflate(layoutIdForListItem, viewGroup, false);
 
-        return new MovieAdapterViewHolder(view, mMovies, mOnClickListener);
+        return new MovieAdapterViewHolder(view);
     }
 
     /**
@@ -94,6 +98,30 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapterViewHolder>{
         return mImageUris.length;
     }
 
+    public class MovieAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+
+        public final ImageView mMovieImageView;
+
+        public MovieAdapterViewHolder(View itemView) {
+            super(itemView);
+            mMovieImageView = itemView.findViewById(R.id.iv_movie);
+            itemView.setOnClickListener(this);
+        }
+
+        /**
+         * This gets called by the child views during a click.
+         * @param view The View that was clicked
+         */
+        @Override
+        public void onClick(View view) {
+            int adapterPosition =  getAdapterPosition();
+            Movie clickedMovieData = mMovies[adapterPosition];
+
+            mOnClickListener.onListItemClick(clickedMovieData);
+        }
+    }
+
+
     /**
      * This method is used to set the movie list on a MovieAdapter if we've already created one.
      * This is handy when we get new data from the web but don't want to create a new
@@ -104,7 +132,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapterViewHolder>{
     public void setMovieData(Movie[] movies) {
         String[] posterPath = new String[movies.length];
         mImageUris = new String[movies.length];
-        //String[] imageUris = new String[movies.length];
         for (int i = 0; i < movies.length; i++) {
             posterPath[i] = movies[i].getPosterPath();
             mImageUris[i] = NetworkUtils.buildPosterUrlString(posterPath[i]);

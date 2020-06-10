@@ -2,8 +2,10 @@
     <string name="app_name">Pop Movies</string>
     <string name="sort_by_most_popular_button">Sort by most popular</string>
     <string name="sort_by_top_rated_button">Sort by top rated</string>
+    <string name="favorite_movies_list_button">Favorite movies</string>
     <string name="share_button">Share</string>
     <string name="filled_movie_image">filled movie image</string>
     <string name="detail_filled_image">detail filled image</string>
-    <string name="EXTRA_MOVIE">android.intent.extra.MOVIE</string>
+    <string name="reviews_titile">Reviews:</string>
+    <string name="trailers_titile">Trailers:</string>
 </resources>

@@ -6,13 +6,23 @@ package android.exemple.com.popmovies.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity(tableName = "movie")
 public class Movie implements Parcelable {
 
+    @ColumnInfo(name = "original_title")
     private String originalTitle;
+    @ColumnInfo(name = "poster_path")
     private String posterPath;
     private String overview;
+    @ColumnInfo(name = "vote_average")
     private int voteAverage;
+    @ColumnInfo(name = "release_date")
     private String releaseDate;
+    @PrimaryKey
     private int id;
 
     public Movie() {}

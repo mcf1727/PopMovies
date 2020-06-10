@@ -5,7 +5,8 @@ package android.exemple.com.popmovies;
 
 import android.content.Context;
 import android.content.Intent;
-import android.exemple.com.popmovies.Adapter.MovieAdapter;
+import android.exemple.com.popmovies.model.AppDatabase;
+import android.exemple.com.popmovies.movieItem.MovieAdapter;
 import android.exemple.com.popmovies.model.Movie;
 import android.exemple.com.popmovies.utilities.NetworkUtils;
 import android.exemple.com.popmovies.utilities.TheMovieDbJsonUtils;
@@ -20,6 +21,8 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,33 +33,50 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String NO_INTERNET_TOAST = "No Internet connexion";
+
     /* The choice of sort order by the most popular */
     private static final String POPULAR = "popular";
     /* The choice of sort order by the top rated */
     private static final String TOP_RATED = "top_rated";
+    private static final String FAVORITE = "favorite";
+    private static final String INSTANCE_CRITERIA = "instanceCriteria";
+    private static final String DEFAULT_CRITERIA = POPULAR;
     /* The criteria for the sort order */
-    private String criteria;
+    private String criteria = DEFAULT_CRITERIA;
+
     private static MovieAdapter mMovieAdapter;
+    private AppDatabase mDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (isOnline()) {
-            RecyclerView mRecyclerView = findViewById(R.id.recyclerview_main);
-            int numberOfColumns = 2;
-            GridLayoutManager layoutManager = new GridLayoutManager(this, numberOfColumns);
-            mRecyclerView.setLayoutManager(layoutManager);
-            mRecyclerView.setHasFixedSize(true);
-            mMovieAdapter = new MovieAdapter(this);
-            mRecyclerView.setAdapter(mMovieAdapter);
+        mDb = AppDatabase.getInstance(getApplicationContext());
 
-            loadMovieDate();
+        RecyclerView mRecyclerView = findViewById(R.id.recyclerview_main);
+        int numberOfColumns = 2;
+        GridLayoutManager layoutManager = new GridLayoutManager(this, numberOfColumns);
+        mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setHasFixedSize(true);
+        mMovieAdapter = new MovieAdapter(this);
+        mRecyclerView.setAdapter(mMovieAdapter);
 
-        } else {
-            Toast.makeText(this, NO_INTERNET_TOAST, Toast.LENGTH_LONG).show();
+        if (savedInstanceState != null && savedInstanceState.containsKey(INSTANCE_CRITERIA)) {
+            criteria = savedInstanceState.getString(INSTANCE_CRITERIA, DEFAULT_CRITERIA);
         }
+
+        if (criteria.equals(POPULAR) || criteria.equals(TOP_RATED)) {
+            fetchMovieListOnCriteria(criteria);
+        } else if ( criteria.equals(FAVORITE)) {
+            setUpFavoriteMainViewModel();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString(INSTANCE_CRITERIA, criteria);
+        super.onSaveInstanceState(outState);
     }
 
     /**
@@ -67,41 +87,41 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
     @Override
     public void onListItemClick(Movie clickedMovieData) {
         Intent intentToStartDetailActivity = new Intent(this, DetailActivity.class);
-        intentToStartDetailActivity.putExtra(String.valueOf(R.string.EXTRA_MOVIE), clickedMovieData);
+        intentToStartDetailActivity.putExtra(DetailActivity.EXTRA_MOVIE, clickedMovieData);
+
         startActivity(intentToStartDetailActivity);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (isOnline()) {
-            MenuInflater inflater = getMenuInflater();
-            inflater.inflate(R.menu.sortorder, menu);
-            return true;
-        }
-        return false;
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.sortorder, menu);
+        return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         switch (item.getItemId()) {
             case R.id.sort_by_most_popular:
-                fetchMovieListOnCriteria(POPULAR);
+                if (isOnline()) {
+                    fetchMovieListOnCriteria(POPULAR);
+                } else {
+                    Toast.makeText(this, NO_INTERNET_TOAST, Toast.LENGTH_LONG).show();
+                }
                 return true;
             case R.id.sort_by_top_rated:
-                fetchMovieListOnCriteria(TOP_RATED);
+                if (isOnline()) {
+                    fetchMovieListOnCriteria(TOP_RATED);
+                } else {
+                    Toast.makeText(this, NO_INTERNET_TOAST, Toast.LENGTH_LONG).show();
+                }
+                return true;
+            case R.id.favorite_movie_list:
+                setUpFavoriteMainViewModel();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
-
-    }
-
-    /**
-     * This method will the movie data.
-     */
-    private void loadMovieDate() {
-        fetchMovieListOnCriteria(POPULAR);
     }
 
     /**
@@ -111,11 +131,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
      * @param criteria The criteria for the sort order
      */
     private void fetchMovieListOnCriteria(String criteria) {
+        new FetchMovieTask().execute(criteria);
+        this.criteria = criteria;
 
-        if (this.criteria == null || !this.criteria.equals(criteria)) {
-            new FetchMovieTask().execute(criteria);
-            this.criteria = criteria;
-        }
     }
 
     public static class FetchMovieTask extends AsyncTask<String, Void, Movie[]> {
@@ -125,14 +143,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
                 return null;
             }
 
-            String critical = params[0];
-            URL movieRequestUrl = NetworkUtils.buildUrl(critical);
+            String criteria = params[0];
+            URL movieRequestUrl = NetworkUtils.buildUrl(criteria);
 
             try {
                 String jsonMovieResponse = NetworkUtils.getResponseFromHttpUrl(movieRequestUrl);
                 Log.v(TAG, "Get the movie data list" + jsonMovieResponse);
 
-                return TheMovieDbJsonUtils.getSimpleMovieMoviesFromJson(jsonMovieResponse);
+                return TheMovieDbJsonUtils.getSimpleMoviesFromJson(jsonMovieResponse);
             } catch (Exception e) {
                 e.printStackTrace();
                 return null;
@@ -141,13 +159,26 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
 
         @Override
         protected void onPostExecute(Movie[] movies) {
-
             if (movies != null) {
                 mMovieAdapter.setMovieData(movies);
             }
         }
     }
 
+    private void setUpFavoriteMainViewModel() {
+        MainViewModelFactory factory = new MainViewModelFactory(getApplication());
+        final MainViewModel viewModel = new ViewModelProvider(this, factory).get(MainViewModel.class);
+        final Observer<Movie[]> movieObserver = new Observer<Movie[]>() {
+            @Override
+            public void onChanged(Movie[] movies) {
+                Log.d(TAG, "Receiving database update from LiveData in ViewModel");
+                mMovieAdapter.setMovieData(movies);
+            }
+        };
+        viewModel.getMovies().observe(this, movieObserver);
+
+        criteria = FAVORITE;
+    }
 
     /**
      * Check if the internet connection is available.

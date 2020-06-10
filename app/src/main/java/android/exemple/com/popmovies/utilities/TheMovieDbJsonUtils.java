@@ -4,6 +4,9 @@
 package android.exemple.com.popmovies.utilities;
 
 import android.exemple.com.popmovies.model.Movie;
+import android.util.Log;
+
+import androidx.lifecycle.LiveData;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -16,18 +19,20 @@ import java.net.HttpURLConnection;
  */
 public final class TheMovieDbJsonUtils {
 
+    private static final String STATUS_CODE = "status_code";
+    private static final String RESULTS = "results";
+
 
     /**
      * This method parses JSON from a web response and returns an array of Object
      * describing the movies
+     *
      * @param movieJsonStr JSON response from the server
      * @return Array of Object Movie
      * @throws JSONException If JSON data can't be properly parsed
      */
-    public static Movie[] getSimpleMovieMoviesFromJson(String movieJsonStr) throws JSONException {
+    public static Movie[] getSimpleMoviesFromJson(String movieJsonStr) throws JSONException {
 
-        final String STATUS_CODE = "status_code";
-        final String RESULTS = "results";
         final String ORIGINAL_TITLE = "original_title";
         final String POSTER_PATH = "poster_path";
         final String OVERVIEW = "overview";
@@ -76,5 +81,44 @@ public final class TheMovieDbJsonUtils {
         }
 
         return parsedMovieData;
+    }
+
+
+    /**
+     * This method parses JSON from a web response and returns an array of Object
+     * describing the trailers or reviews about a movie.
+     *
+     * @param movieDetailJsonStr JSON response from the server
+     * @param typeResource The key to identify a trailer or review
+     * @return Array of string array
+     * @throws JSONException
+     */
+    public static String[] getSimpleMoviesDetailFromJson(String movieDetailJsonStr, String typeResource) throws JSONException {
+
+        String[] parsedMovieDetailData;
+
+        JSONObject movieJson = new JSONObject(movieDetailJsonStr);
+
+        /* Is there an error? */
+        if (movieJson.has(STATUS_CODE)) {
+            int errorCode = movieJson.getInt(STATUS_CODE);
+
+            switch (errorCode) {
+                case HttpURLConnection.HTTP_UNAUTHORIZED:
+                case HttpURLConnection.HTTP_NOT_FOUND:
+                    return null;
+                default:
+                    break;
+            }
+        }
+
+        JSONArray movieDetailArray = movieJson.getJSONArray(RESULTS);
+        parsedMovieDetailData = new String[movieDetailArray.length()];
+
+        for (int i = 0; i < movieDetailArray.length(); i++) {
+            JSONObject movieDetailData = movieDetailArray.getJSONObject(i);
+            parsedMovieDetailData[i] = movieDetailData.getString(typeResource);
+        }
+        return parsedMovieDetailData;
     }
 }
